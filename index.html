@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Kata: Huruf H dan C</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            background-image: radial-gradient(#bae6fd 2px, transparent 2px);
+            background-size: 30px 30px;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        h1, h2, h3, .btn-text {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            width: 100vw;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        .btn {
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 4px solid #e0f2fe;
+        }
+
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .correct-ans {
+            background-color: #4ade80 !important;
+            color: white !important;
+            border-color: #22c55e !important;
+            animation: pop 0.5s ease;
+        }
+
+        .wrong-ans {
+            background-color: #f87171 !important;
+            color: white !important;
+            border-color: #ef4444 !important;
+            animation: shake 0.5s ease;
+        }
+        
+        .option-btn {
+            background-color: #ffffff;
+            border: 4px solid #bae6fd;
+            color: #0369a1;
+        }
+        .option-btn:hover {
+            background-color: #e0f2fe;
+            border-color: #7dd3fc;
+        }
+
+        /* YouTube iframe container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sound Effects -->
+    <audio id="bgMusic" loop>
+        <!-- Using a placeholder data URI for a silent track just so the code doesn't break, actual implementation would need valid audio URLs. To adhere to instructions, we will use Web Audio API synthesis for SFX to avoid external URLs. -->
+    </audio>
+
+    <!-- Screen 1: Login -->
+    <div id="loginScreen" class="screen active">
+        <div class="card p-8 md:p-12 w-11/12 max-w-md text-center relative overflow-hidden">
+            <div class="absolute -top-10 -left-10 text-6xl text-sky-200 opacity-50 transform rotate-12"><i class="fas fa-book"></i></div>
+            <div class="absolute -bottom-10 -right-10 text-6xl text-sky-200 opacity-50 transform -rotate-12"><i class="fas fa-pencil-alt"></i></div>
+            
+            <h1 class="text-4xl md:text-5xl text-sky-600 mb-2">Halo Teman!</h1>
+            <p class="text-gray-600 mb-8 font-bold">Mari belajar huruf H dan C</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <input type="text" id="playerName" placeholder="Siapa namamu?" class="w-full text-center px-4 py-3 rounded-full border-4 border-sky-100 focus:border-sky-400 focus:outline-none text-lg font-bold text-gray-700 placeholder-gray-400 transition-colors">
+                </div>
+                <div>
+                    <select id="playerClass" class="w-full text-center px-4 py-3 rounded-full border-4 border-sky-100 focus:border-sky-400 focus:outline-none text-lg font-bold text-gray-700 transition-colors appearance-none bg-white">
+                        <option value="" disabled selected>Pilih Kelasmu</option>
+                        <option value="1A">Kelas 1 A</option>
+                        <option value="1B">Kelas 1 B</option>
+                        <option value="1C">Kelas 1 C</option>
+                    </select>
+                </div>
+                <button onclick="startGame()" class="btn w-full bg-yellow-400 hover:bg-yellow-300 text-yellow-900 border-b-4 border-yellow-500 rounded-full py-4 text-2xl btn-text mt-4 flex items-center justify-center gap-2">
+                    Mulai Belajar! <i class="fas fa-play"></i>
+                </button>
+            </div>
+            <p id="loginError" class="text-red-500 mt-4 text-sm font-bold hidden">Tolong isi nama dan pilih kelas ya!</p>
+        </div>
+    </div>
+
+    <!-- Screen 2: Video Pembelajaran -->
+    <div id="videoScreen" class="screen relative">
+        <button onclick="goHome()" class="absolute top-4 left-4 bg-white p-3 rounded-full shadow-lg text-sky-500 hover:text-sky-700 transition-colors z-10 btn">
+            <i class="fas fa-home text-2xl"></i>
+        </button>
+
+        <div class="card p-6 md:p-8 w-11/12 max-w-3xl w-full">
+            <h2 class="text-3xl text-center text-sky-600 mb-6">Ayo Tonton Dulu!</h2>
+            
+            <div class="video-container mb-6 border-4 border-sky-200">
+                <!-- Embedded YouTube Video for Learning H and C (using a relevant educational video found in search) -->
+                <iframe src="https://www.youtube.com/embed/7YxtnTqf1K4?rel=0" title="Belajar Membaca Huruf H dan C" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <button onclick="proceedToGame()" class="btn w-full bg-green-400 hover:bg-green-300 text-green-900 border-b-4 border-green-600 rounded-full py-4 text-2xl btn-text flex items-center justify-center gap-2">
+                Lanjut Main Game <i class="fas fa-gamepad"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Screen 3: Game Board -->
+    <div id="gameScreen" class="screen relative">
+        <button onclick="goHome()" class="absolute top-4 left-4 bg-white p-3 rounded-full shadow-lg text-sky-500 hover:text-sky-700 transition-colors z-10 btn">
+            <i class="fas fa-home text-2xl"></i>
+        </button>
+
+        <div class="absolute top-4 right-4 bg-white px-4 py-2 rounded-full shadow text-sky-600 font-bold flex items-center gap-2">
+            <i class="fas fa-star text-yellow-400"></i> <span id="scoreDisplay">0</span>
+        </div>
+
+        <div class="card p-6 md:p-10 w-11/12 max-w-2xl text-center mt-12">
+            <div class="flex justify-between items-center mb-6">
+                <span id="questionCounter" class="text-gray-500 font-bold bg-gray-100 px-3 py-1 rounded-full">Soal 1/10</span>
+                <span id="playerNameDisplay" class="text-sky-600 font-bold capitalize"></span>
+            </div>
+
+            <!-- Image/Visual for the question -->
+            <div id="questionVisual" class="mb-8 text-8xl h-32 flex items-center justify-center floating-element drop-shadow-md">
+                <!-- Emoji or SVG will be injected here -->
+            </div>
+
+            <h2 id="questionText" class="text-3xl md:text-4xl text-gray-800 mb-8 font-bold min-h-[4rem] flex items-center justify-center"></h2>
+
+            <div id="optionsContainer" class="grid grid-cols-2 gap-4">
+                <!-- Option buttons injected via JS -->
+            </div>
+            
+            <button id="nextBtn" onclick="nextQuestion()" class="hidden btn w-full bg-sky-400 hover:bg-sky-300 text-sky-900 border-b-4 border-sky-600 rounded-full py-3 text-xl btn-text mt-8 flex items-center justify-center gap-2 mx-auto max-w-xs">
+                Lanjut <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Screen 4: Result -->
+    <div id="resultScreen" class="screen relative">
+        <button onclick="goHome()" class="absolute top-4 left-4 bg-white p-3 rounded-full shadow-lg text-sky-500 hover:text-sky-700 transition-colors z-10 btn">
+            <i class="fas fa-home text-2xl"></i>
+        </button>
+
+        <div class="card p-8 md:p-12 w-11/12 max-w-md text-center">
+            <div class="text-7xl text-yellow-400 mb-4 wiggle animate-bounce"><i class="fas fa-trophy"></i></div>
+            <h2 class="text-4xl text-sky-600 mb-2">Hebat Sekali!</h2>
+            <p id="resultMessage" class="text-xl text-gray-600 mb-6 font-bold"></p>
+            
+            <div class="bg-sky-50 rounded-2xl p-6 mb-8 border-2 border-sky-100">
+                <p class="text-gray-500 font-bold mb-1">Nilai Kamu:</p>
+                <div class="text-6xl font-black text-sky-500" id="finalScore">100</div>
+            </div>
+
+            <div class="space-y-4">
+                <button onclick="downloadReport()" class="btn w-full bg-green-500 hover:bg-green-400 text-white border-b-4 border-green-700 rounded-full py-4 text-xl font-bold flex items-center justify-center gap-2">
+                    <i class="fas fa-file-excel"></i> Unduh Hasil (Excel)
+                </button>
+                <button onclick="restartGame()" class="btn w-full bg-sky-400 hover:bg-sky-300 text-sky-900 border-b-4 border-sky-600 rounded-full py-4 text-xl font-bold flex items-center justify-center gap-2 btn-text">
+                    <i class="fas fa-redo"></i> Main Lagi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure
+        let currentUser = {
+            name: '',
+            class: '',
+            score: 0,
+            date: ''
+        };
+
+        let currentQuestionIndex = 0;
+        let isAnswered = false;
+        let gameRecords = []; // Store records to export
+
+        // Audio Synthesis for SFX (No external URLs needed)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'wrong') {
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(200, audioCtx.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'cheer') {
+                // Simple chord for cheer
+                const frequencies = [440, 554.37, 659.25]; // A major chord
+                frequencies.forEach(freq => {
+                    const osc = audioCtx.createOscillator();
+                    const gn = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.value = freq;
+                    osc.connect(gn);
+                    gn.connect(audioCtx.destination);
+                    gn.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gn.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 1.5);
+                });
+            }
+        }
+
+        // 10 Questions focusing on H and C
+        const questions = [
+            {
+                visual: "🐯", // Harimau
+                type: "complete",
+                text: "...a - ri - ma - u",
+                options: ["Ha", "Ca", "Hu", "Cu"],
+                answer: "Ha"
+            },
+            {
+                visual: "🌶️", // Cabai
+                type: "complete",
+                text: "...a - ba - i",
+                options: ["Ha", "Ca", "He", "Ce"],
+                answer: "Ca"
+            },
+            {
+                visual: "🚁", // Helikopter
+                type: "complete",
+                text: "...e - li - kop - ter",
+                options: ["Ce", "He", "Ho", "Co"],
+                answer: "He"
+            },
+            {
+                visual: "🪱", // Cacing
+                type: "complete",
+                text: "...a - cing",
+                options: ["Ha", "Ca", "Hi", "Ci"],
+                answer: "Ca"
+            },
+            {
+                visual: "🌧️", // Hujan
+                type: "complete",
+                text: "...u - jan",
+                options: ["Cu", "Hu", "Ca", "Ha"],
+                answer: "Hu"
+            },
+            {
+                visual: "🍫", // Cokelat
+                type: "complete",
+                text: "...o - ke - lat",
+                options: ["Ho", "Co", "Hu", "Cu"],
+                answer: "Co"
+            },
+            {
+                visual: "🦈", // Hiu
+                type: "complete",
+                text: "...i - u",
+                options: ["Ci", "Hi", "Ce", "He"],
+                answer: "Hi"
+            },
+            {
+                visual: "👖", // Celana
+                type: "complete",
+                text: "...e - la - na",
+                options: ["He", "Ce", "Ha", "Ca"],
+                answer: "Ce"
+            },
+            {
+                visual: "🏨", // Hotel
+                type: "complete",
+                text: "...o - tel",
+                options: ["Co", "Ho", "Ce", "He"],
+                answer: "Ho"
+            },
+            {
+                visual: "🦑", // Cumi-cumi (using squid emoji as closest)
+                type: "complete",
+                text: "...u - mi",
+                options: ["Hu", "Cu", "Ho", "Co"],
+                answer: "Cu"
+            }
+        ];
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goHome() {
+            showScreen('loginScreen');
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerClass').value = '';
+            // Pause any playing iframe video by reloading it
+            const iframe = document.querySelector('iframe');
+            if(iframe) {
+                let iframeSrc = iframe.src;
+                iframe.src = iframeSrc;
+            }
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('playerName').value.trim();
+            const classInput = document.getElementById('playerClass').value;
+            const errorMsg = document.getElementById('loginError');
+
+            if (!nameInput || !classInput) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            errorMsg.classList.add('hidden');
+            currentUser.name = nameInput;
+            currentUser.class = classInput;
+            currentUser.score = 0;
+            currentUser.date = new Date().toLocaleDateString('id-ID');
+            
+            document.getElementById('playerNameDisplay').textContent = currentUser.name;
+            
+            // Try to initialize audio context on first user interaction
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            showScreen('videoScreen');
+        }
+
+        function proceedToGame() {
+            currentQuestionIndex = 0;
+            currentUser.score = 0;
+            updateScoreDisplay();
+            
+            // Stop video
+            const iframe = document.querySelector('iframe');
+            if(iframe) iframe.src = iframe.src;
+
+            showScreen('gameScreen');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            document.getElementById('nextBtn').classList.add('hidden');
+            
+            const q = questions[currentQuestionIndex];
+            
+            document.getElementById('questionCounter').textContent = `Soal ${currentQuestionIndex + 1}/${questions.length}`;
+            document.getElementById('questionVisual').textContent = q.visual;
+            
+            // Format text with a blank for 'complete' type
+            let displayText = q.text.replace('...', '___');
+            document.getElementById('questionText').innerHTML = displayText;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            // Shuffle options slightly (optional, but they are pre-defined in data)
+            let currentOptions = [...q.options];
+            
+            currentOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn rounded-2xl py-4 md:py-6 text-3xl font-bold transition-all shadow-sm flex items-center justify-center';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedOption, btnElement) {
+            if (isAnswered) return;
+            isAnswered = true;
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === q.answer;
+
+            // Find correct button
+            const allBtns = document.querySelectorAll('.option-btn');
+            let correctBtn;
+            allBtns.forEach(b => {
+                if (b.textContent === q.answer) correctBtn = b;
+                b.style.pointerEvents = 'none'; // Disable clicks
+            });
+
+            if (isCorrect) {
+                btnElement.classList.add('correct-ans');
+                btnElement.innerHTML += ' <i class="fas fa-check-circle ml-2"></i>';
+                currentUser.score += 10;
+                updateScoreDisplay();
+                playSound('correct');
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.8 },
+                    colors: ['#4ade80', '#fef08a', '#38bdf8']
+                });
+                
+                // Fill the blank
+                document.getElementById('questionText').innerHTML = q.text.replace('...', `<span class="text-green-500">${q.answer}</span>`);
+            } else {
+                btnElement.classList.add('wrong-ans');
+                btnElement.innerHTML += ' <i class="fas fa-times-circle ml-2"></i>';
+                correctBtn.classList.add('correct-ans'); // Show correct answer
+                playSound('wrong');
+                
+                // Fill the blank with correct answer to show what it should be
+                document.getElementById('questionText').innerHTML = q.text.replace('...', `<span class="text-red-500 line-through mr-2">${selectedOption}</span><span class="text-green-500">${q.answer}</span>`);
+            }
+
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('scoreDisplay').textContent = currentUser.score;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            showScreen('resultScreen');
+            document.getElementById('finalScore').textContent = currentUser.score;
+            
+            const msgEl = document.getElementById('resultMessage');
+            if (currentUser.score === 100) {
+                msgEl.textContent = `Luar Biasa, ${currentUser.name}! Kamu dapat nilai sempurna!`;
+                playSound('cheer');
+                triggerBigConfetti();
+            } else if (currentUser.score >= 70) {
+                msgEl.textContent = `Bagus sekali, ${currentUser.name}! Terus berlatih ya.`;
+                playSound('cheer');
+            } else {
+                msgEl.textContent = `Tetap semangat, ${currentUser.name}! Ayo coba lagi.`;
+            }
+
+            // Save record to local array
+            gameRecords.push({...currentUser});
+        }
+
+        function triggerBigConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        function restartGame() {
+            proceedToGame(); // Skip video on restart
+        }
+
+        function downloadReport() {
+            if (gameRecords.length === 0) {
+                alert("Belum ada data permainan yang disimpan.");
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Tanggal,Nama Siswa,Kelas,Nilai\n"; // Header
+
+            gameRecords.forEach(function(rowArray) {
+                let row = `${rowArray.date},"${rowArray.name}",${rowArray.class},${rowArray.score}`;
+                csvContent += row + "\n";
+            });
+
+            // Create download link
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Hasil_Game_Membaca_${new Date().getTime()}.csv`);
+            document.body.appendChild(link); // Required for FF
+            
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
